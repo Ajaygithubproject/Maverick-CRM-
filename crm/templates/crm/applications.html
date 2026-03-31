@@ -1,0 +1,434 @@
+{% extends 'crm/base.html' %}
+{% block title %}Applications — ImmigrateCRM{% endblock %}
+{% block page_title %}Applications & Status{% endblock %}
+
+{% block content %}
+
+<div class="section-header">
+<div class="section-title">
+Applications ({{ applications|length }})
+</div>
+
+<button class="btn btn-primary"
+onclick="document.getElementById('addAppModal').style.display='flex'">
++ New Application
+</button>
+
+</div>
+
+
+<div class="table-card">
+
+<div class="table-responsive">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Candidate</th>
+<th>Country</th>
+<th>Job</th>
+<th>Status</th>
+<th>App Date</th>
+<th>Package</th>
+<th>Paid</th>
+<th>Balance</th>
+<th>Actions</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for a in applications %}
+
+<tr>
+
+<td>
+<a href="{% url 'candidate_view' a.candidate.pk %}"
+style="color:var(--accent);font-weight:600;">
+{{ a.candidate.name }}
+</a>
+</td>
+
+<td>{{ a.country|default:"—" }}</td>
+
+<td>{{ a.job_category|default:"—" }}</td>
+
+<td>
+<span class="badge badge-{{ a.status|lower|slugify }}">
+{{ a.status }}
+</span>
+</td>
+
+<td>
+{{ a.application_date|default:"—" }}
+</td>
+
+<td class="fw-bold">
+₹{{ a.package_amount|floatformat:0 }}
+</td>
+
+<td class="text-green">
+₹{{ a.amount_paid|floatformat:0 }}
+</td>
+
+<td class="fw-bold
+{% if a.balance > 0 %}
+text-red
+{% else %}
+text-green
+{% endif %}
+">
+
+₹{{ a.balance|floatformat:0 }}
+
+</td>
+
+<td>
+
+<a href="{% url 'application_delete' a.pk %}"
+class="btn btn-danger btn-sm"
+onclick="return confirm('Delete this application?')">
+
+🗑
+
+</a>
+
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="9">
+
+<div class="empty-state">
+
+<div class="empty-icon">
+📋
+</div>
+
+<p>No applications found</p>
+
+</div>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+<!-- ADD MODAL -->
+
+<div class="modal-overlay"
+id="addAppModal"
+style="display:none;">
+
+<div class="modal-box">
+
+<div class="modal-header">
+
+<div class="modal-title">
+New Application
+</div>
+
+<button class="modal-close"
+onclick="document.getElementById('addAppModal').style.display='none'">
+
+✕
+
+</button>
+
+</div>
+
+
+<form method="post"
+action="{% url 'application_add' %}">
+
+{% csrf_token %}
+
+<div class="modal-body">
+
+
+<div class="form-row">
+
+<div>
+
+<label class="form-label">
+Candidate *
+</label>
+
+<select class="form-select"
+name="candidate"
+required>
+
+<option value="">
+Select Candidate
+</option>
+
+{% for c in form.candidate.field.queryset %}
+
+<option value="{{ c.pk }}">
+{{ c.name }}
+</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+
+<div>
+
+<label class="form-label">
+Destination Country
+</label>
+
+<input class="form-control"
+name="country">
+
+</div>
+
+</div>
+
+
+
+<div class="form-row">
+
+<div>
+
+<label class="form-label">
+Job Category
+</label>
+
+<input class="form-control"
+name="job_category">
+
+</div>
+
+<div>
+
+<label class="form-label">
+Status
+</label>
+
+<select class="form-select"
+name="status">
+
+{% for val,lbl in form.fields.status.choices %}
+
+<option value="{{ val }}">
+{{ lbl }}
+</option>
+
+{% endfor %}
+
+</select>
+
+</div>
+
+</div>
+
+
+
+<div class="form-row">
+
+<div>
+
+<label class="form-label">
+Application Date
+</label>
+
+<input class="form-control"
+name="application_date"
+type="date"
+value="{% now 'Y-m-d' %}">
+
+</div>
+
+<div>
+
+<label class="form-label">
+Boarding Date
+</label>
+
+<input class="form-control"
+name="boarding_date"
+type="date">
+
+</div>
+
+</div>
+
+
+
+<!-- PAYMENT -->
+
+<div class="form-row">
+
+<div>
+
+<label class="form-label">
+Package Amount ₹
+</label>
+
+<input class="form-control"
+type="number"
+name="package_amount"
+id="package"
+value="0">
+
+</div>
+
+
+<div>
+
+<label class="form-label">
+Amount Paid ₹
+</label>
+
+<input class="form-control"
+type="number"
+name="amount_paid"
+id="paid"
+value="0">
+
+</div>
+
+
+<div>
+
+<label class="form-label">
+Balance ₹
+</label>
+
+<input class="form-control"
+type="number"
+id="balance"
+readonly>
+
+</div>
+
+</div>
+
+
+
+<div>
+
+<label class="form-label">
+Remarks
+</label>
+
+<textarea class="form-control"
+name="remarks"
+rows="2">
+</textarea>
+
+</div>
+
+
+</div>
+
+
+<div class="modal-footer">
+
+<button type="button"
+class="btn btn-secondary"
+onclick="document.getElementById('addAppModal').style.display='none'">
+
+Cancel
+
+</button>
+
+<button type="submit"
+class="btn btn-primary">
+
+💾 Save Application
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+<script>
+
+function calculateBalance(){
+
+let packageAmount=
+parseFloat(
+document.getElementById("package").value
+) || 0;
+
+
+let paid=
+parseFloat(
+document.getElementById("paid").value
+) || 0;
+
+
+let balance=
+packageAmount - paid;
+
+
+document.getElementById("balance").value=
+balance;
+
+}
+
+
+document.getElementById("package")
+.addEventListener(
+"input",
+calculateBalance
+);
+
+
+document.getElementById("paid")
+.addEventListener(
+"input",
+calculateBalance
+);
+
+
+document.getElementById('addAppModal')
+.addEventListener(
+'click',
+function(e){
+
+if(e.target===this){
+
+this.style.display='none';
+
+}
+
+}
+);
+
+</script>
+
+{% endblock %}

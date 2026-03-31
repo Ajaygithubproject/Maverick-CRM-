@@ -1,0 +1,39 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ImmigrateCRM — Login</title>
+<link rel="stylesheet" href="{% static 'crm/css/style.css' %}">
+</head>
+<body>
+<div class="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-brand">✈ Maverick Ghouse</div>
+      <div class="login-sub">Immigration & Multi-Domain Operations</div>
+    </div>
+
+    {% for message in messages %}
+      <div class="alert alert-error">{{ message }}</div>
+    {% endfor %}
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>Username</label>
+        <input class="form-control" type="text" name="username" placeholder="Enter username" autofocus>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input class="form-control" type="password" name="password" placeholder="Enter password">
+      </div>
+      <button type="submit" class="btn btn-primary btn-full">Sign In →</button>
+    </form>
+
+  </div>
+  
+</div>
+<div class="login-sub">© 2026 Maverick Ghouse Immigration</div>
+</body>
+</html>
